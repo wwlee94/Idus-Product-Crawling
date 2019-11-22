@@ -5,6 +5,7 @@ import io
 import csv
 import re
 
+
 rf = io.open ('idus_item_list.csv','rb')
 reader = csv.reader(rf)
 for item in reader:
