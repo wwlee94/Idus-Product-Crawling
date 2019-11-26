@@ -8,7 +8,6 @@ import csv
 import re
 
 index = 0
-idx = 0
 wf = io.open('idus_item_list.csv', 'wb')
 writer = csv.writer(wf)
 writer.writerow([index, '썸네일_520', '썸네일_720', '썸네일_리스트_320', '제목', '판매자', '원가', '할인가', '할인율', '설명'])
@@ -21,7 +20,7 @@ for URL_BASE in reader:
     soup = BeautifulSoup(html, 'html.parser')
 
     p = re.compile('url\((.*)\)')
-    # 이미지
+    # 이미지 리스트 - 320사이즈
     product_image = soup.select(
         '#content > div.inner-w.layout-split > section.prd-imgs > div > fieldset > ul'
     )[0].children
@@ -36,11 +35,13 @@ for URL_BASE in reader:
 
     image_thumbnail_520 = image_thumbnail_list_320[0].split('_')[0] + '_520.jpg'
     image_thumbnail_720 = image_thumbnail_list_320[0].split('_')[0] + '_720.jpg'
+    # 문자열로 바꾼 이미지 리스트
+    image_list = '#'.join(image_thumbnail_list_320)
 
     # 가격 (원가, 할인가, 할인률)
     # cost_size = 3 -> cross: 원가, strong: 할인가, point: 할인율
     # cost_size = 1 -> strong : 원가 나머지 None
-    # 1. 원가
+ 
     product_cost = soup.select(
         '#content > div.inner-w.layout-split > section.ui-product-detail > div.prd-cost > span.txt-cross'
     )
@@ -48,12 +49,10 @@ for URL_BASE in reader:
         product_cost = product_cost[0].text.encode('utf-8')
     else: product_cost = None
 
-    # 2. 할인가
     product_discount_cost = soup.select(
         '#content > div.inner-w.layout-split > section.ui-product-detail > div.prd-cost > span.txt-strong'
     )[0].text.encode('utf-8')
 
-    # 3. 할인률
     product_discount_rate = soup.select(
         '#content > div.inner-w.layout-split > section.ui-product-detail > div.prd-cost > span.txt-point'
     )
@@ -83,7 +82,7 @@ for URL_BASE in reader:
         index,
         image_thumbnail_520,
         image_thumbnail_720,
-        '#'.join(image_thumbnail_list_320),
+        image_list,
         product_title,
         product_seller,
         product_cost,
@@ -96,7 +95,7 @@ for URL_BASE in reader:
 
     # print(image_thumbnail_520)
     # print(image_thumbnail_720)
-    # print('#'.join(image_thumbnail_list_320))
+    # print(image_list)
 
     # print(product_title)
     # print(product_seller)
