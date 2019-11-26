@@ -8,12 +8,12 @@ import csv
 import re
 
 index = 0
+idx = 0
 wf = io.open('idus_item_list.csv', 'wb')
 writer = csv.writer(wf)
 writer.writerow([index, '썸네일_520', '썸네일_720', '썸네일_리스트_320', '제목', '판매자', '원가', '할인가', '할인율', '설명'])
 
-
-rf = io.open ('idus_item_url.csv','r', encoding='utf-8')
+rf = io.open('idus_item_url.csv','rb')
 reader = csv.reader(rf)
 for URL_BASE in reader:
     req = requests.get(URL_BASE[0])
@@ -38,17 +38,21 @@ for URL_BASE in reader:
     image_thumbnail_720 = image_thumbnail_list_320[0].split('_')[0] + '_720.jpg'
 
     # 가격 (원가, 할인가, 할인률)
+    # cost_size = 3 -> cross: 원가, strong: 할인가, point: 할인율
+    # cost_size = 1 -> strong : 원가 나머지 None
     # 1. 원가
     product_cost = soup.select(
-        '#content > div.inner-w.layout-split > section.ui-product-detail > div.prd-cost > span.txt-strong'
-    )[0].text.encode('utf-8')
-    # 2. 할인가
-    product_discount_cost = soup.select(
         '#content > div.inner-w.layout-split > section.ui-product-detail > div.prd-cost > span.txt-cross'
     )
-    if product_discount_cost:
-        product_discount_cost = product_discount_cost[0].text.encode('utf-8')
-    else: product_discount_cost = None
+    if product_cost:
+        product_cost = product_cost[0].text.encode('utf-8')
+    else: product_cost = None
+
+    # 2. 할인가
+    product_discount_cost = soup.select(
+        '#content > div.inner-w.layout-split > section.ui-product-detail > div.prd-cost > span.txt-strong'
+    )[0].text.encode('utf-8')
+
     # 3. 할인률
     product_discount_rate = soup.select(
         '#content > div.inner-w.layout-split > section.ui-product-detail > div.prd-cost > span.txt-point'
@@ -56,6 +60,10 @@ for URL_BASE in reader:
     if product_discount_rate:
         product_discount_rate = product_discount_rate[0].text.encode('utf-8')
     else: product_discount_rate = None 
+
+    if product_discount_rate == None and product_cost == None:
+        product_cost = product_discount_cost
+        product_discount_cost = None
 
     # 상품명
     product_title = soup.select(
@@ -75,7 +83,7 @@ for URL_BASE in reader:
         index,
         image_thumbnail_520,
         image_thumbnail_720,
-        image_thumbnail_list_320,
+        '#'.join(image_thumbnail_list_320),
         product_title,
         product_seller,
         product_cost,
@@ -88,7 +96,7 @@ for URL_BASE in reader:
 
     # print(image_thumbnail_520)
     # print(image_thumbnail_720)
-    # print(image_thumbnail_list_320)
+    # print('#'.join(image_thumbnail_list_320))
 
     # print(product_title)
     # print(product_seller)
