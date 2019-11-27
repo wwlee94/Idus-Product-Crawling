@@ -10,7 +10,7 @@ import re
 index = 0
 wf = io.open('idus_item_list.csv', 'wb')
 writer = csv.writer(wf)
-writer.writerow([index, '썸네일_520', '썸네일_720', '썸네일_리스트_320', '제목', '판매자', '원가', '할인가', '할인율', '설명'])
+writer.writerow([index, 'thumbnail_520', 'thumbnail_720', 'thumbnail_list_320', 'title', 'seller', 'cost', 'discount_cost', 'discount_rate', 'description'])
 
 rf = io.open('idus_item_url.csv','rb')
 reader = csv.reader(rf)
